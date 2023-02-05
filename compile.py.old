@@ -1,0 +1,191 @@
+#!/usr/bin/python3
+import sys
+import os
+import time
+import subprocess 
+
+
+compile_dirs = ['./wonderer/src/', './demos/tetris/', './vendor/stb/', './vendor/imgui/']
+c_compiler = 'gcc'
+cpp_compiler = 'g++'
+compile_flags = ['-g']
+link_flags = ['-lGL', '-lglfw', '-lm', '-lGLEW', '-ldl']
+out_file_name = 'bin/tetris'
+c_file_extention = '.c' 
+cpp_file_extention = '.cpp'
+create_bin_dir = True 
+
+flags = {
+    'run' : False
+} 
+ 
+def main(argv):
+    files = []
+    mod_times = []
+    modified_files = [] 
+    didnt_exist = False 
+
+    for arg in argv:
+        if arg == 'r' or arg == 'run':
+            flags["run"] = True
+        else:
+            print(f"cant understand arguments '{arg}'")
+            return
+
+    for d in compile_dirs:
+        for f in os.listdir(d):
+            if f[0] != '.':
+                if f.endswith(c_file_extention): 
+                    files.append((d + f, c_compiler))
+                elif f.endswith(cpp_file_extention):
+                    files.append((d + f, cpp_compiler))
+
+    for f in files:
+        mod_times.append(os.path.getmtime(f[0]))
+
+    
+    if os.path.exists("compile.py.cache"):
+        f = open("compile.py.cache", "rt")
+        lines = f.readlines()
+
+        found_files = []
+
+        for line in lines:
+            # Words is a list when the 0 in that list is the file and 1 is the time stamp.
+            # We are using map to trim the strings 
+            words = list(map(lambda a : a.strip(), tuple(line.split(':'))))
+            found_files.append(words[0])
+
+            path_index = -1
+            for i in range(len(files)):
+                if(files[i][0] == words[0]):
+                    path_index = i
+                    break
+
+            if(float(words[1]) != mod_times[path_index]):
+                modified_files.append(path_index)
+
+        f.close()
+
+        for i in range(len(files)):
+            found = False
+            for fo in found_files:
+                if(files[i][0] == fo):
+                    found = True
+                    break
+
+            if not found:
+                modified_files.append(i)
+    else:
+        didnt_exist = True
+        f = open("compile.py.cache", "wt")
+        
+        for i in range(len(files)):
+            modified_files.append(i)
+            f.write(f"{files[i][0]} : {mod_times[i]}\n")
+        f.close()
+
+    if(not os.path.exists('bulid')):
+       os.mkdir('bulid') 
+
+    if not os.path.exists('bin') and create_bin_dir:
+        os.mkdir('bin')
+
+    for index in modified_files:
+        res = call_compile(files[index]) 
+        if res == False: return
+
+    objs = list(map(lambda x : 'bulid/' + x[0][x[0].rfind('/') + 1 : x[0].rfind('.')] + '.o',
+                     tuple(files)))
+
+    # Linking phase
+    cmd = [cpp_compiler]
+    cmd.extend(compile_flags)
+    cmd.append('-o')
+    cmd.append(out_file_name)
+    cmd.extend(objs)
+    cmd.extend(link_flags)
+    
+    print(f"executing: {' '.join(cmd)}...")
+
+    proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    boutput, berr = proc.communicate()
+
+    output = '' if boutput == None else boutput.decode('UTF-8')
+    err = '' if berr == None else berr.decode('UTF-8')
+
+    if(output != ''):
+        print(output)
+
+    if(err != ''):
+        print(err)
+        return
+
+    # Updating cache
+
+    if didnt_exist == False:
+    
+        f = open('compile.py.cache', 'rt')
+        lines = f.readlines()
+        write_data = ''
+    
+        for line in lines:
+            words = list(map(lambda a : a.strip(), tuple(line.split(':'))))
+            found = False 
+            new_stamp = 0
+            for m in modified_files:
+                if(words[0] == files[m]):
+                    found = True
+                    new_stamp = mod_times[m]
+                    modified_files.remove(m)
+                    break
+
+            if found:
+                write_data += f"{words[0]} : {new_stamp}\n"
+            else:
+                write_data += f"{words[0]} : {words[1]}\n"
+
+
+        f.close()
+
+        f = open('compile.py.cache', 'wt')
+        f.write(write_data)
+        for m in modified_files:
+            f.write(f"{files[m][0]} : {mod_times[m]}")
+        f.close()
+
+    if flags['run']:
+        os.system(f'./{out_file_name}')
+        
+
+
+def call_compile(f): 
+
+    name = f[0][f[0].rfind('/') + 1 : f[0].rfind('.')]
+
+    cmd = [f[1]]
+    cmd.extend(compile_flags)
+    cmd.append('-c')
+    cmd.append(f[0])
+    cmd.append('-o')
+    cmd.append(f'bulid/{name}.o')
+    print(f"executing: {' '.join(cmd)}...")
+
+    proc = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+    boutput, berr = proc.communicate()
+
+    output = '' if boutput == None else boutput.decode('UTF-8')
+    err = '' if berr == None else berr.decode('UTF-8')
+
+    if(output != ''):
+        print(output)
+
+    if(err != ''):
+        print(err)
+        return False
+
+    return True
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
