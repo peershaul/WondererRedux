@@ -12,10 +12,6 @@ struct BodySubscriber{
 static struct BodySubscriber *first = NULL, *last = NULL;
 static uint16_t bodyCount = 0;
 
-static void print_vec2(vec2 vec){
-	printf("(%f, %f)\n", vec[0], vec[1]);
-}
-
 void physcBodyAddToSim(Body *body){
 	struct BodySubscriber *subscriber = malloc(sizeof(struct BodySubscriber)); 	
 	if(first == NULL)
@@ -77,10 +73,10 @@ void physcBodiesSimStep(float dt){
 		while(sec_body != NULL){
 			if(sec_body != main_body && sec_body->body->forces.length > 0){
 				Force *forces = sec_body->body->forces.arr;		
-				for(int j = 0; j < sec_body->body->forces.last; i++){
-					if(forces[i] == NULL) continue;
+				for(int j = 0; j < sec_body->body->forces.last; j++){
+					if(forces[j] == NULL) continue;
 					vec2 result = {};
-					(*forces[i])(dt, main_body->body, sec_body->body, result);
+					(*forces[j])(dt, main_body->body, sec_body->body, result);
 					glm_vec2_add(acceleration, result, acceleration);
 				}
 			}
@@ -94,14 +90,6 @@ void physcBodiesSimStep(float dt){
 
 		glm_vec2_scale(next_velocities[i], dt, slot);
 		glm_vec2_add(main_body->body->position, slot, next_positions[i]);
-		
-		printf("Body: %d\n", i);
-		printf("\tAcceleration: ");
-		print_vec2(acceleration);
-		printf("\tVelocity: ");
-		print_vec2(next_velocities[i]);
-		printf("\tPosition: ");
-		print_vec2(next_positions[i]);
 
 		LinkedNode *main_node = main_body->node.next;
 		main_body = main_node == NULL? NULL : main_node->parent;

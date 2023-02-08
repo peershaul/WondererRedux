@@ -7,11 +7,12 @@
 #include <stdint.h>
 #include <cglm/affine-pre.h>
 #include <malloc.h>
+#include <math.h>
 
-#define WINDOW_WIDTH 900
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 1080
+#define WINDOW_HEIGHT 1080
 #define WINDOW_NAME "Wonderer | Orbiter"
-#define WORLD_WIDTH 250
+#define WORLD_WIDTH 500
 #define OBJECT_COUNT 2
 
 struct DrawBatch {
@@ -45,6 +46,19 @@ static uint8_t box_layout_sections[] = {2};
 static Camera2D camera = {};
 static struct DrawBatch batch = {};
 
+void gravitational_force(float dt, Body *parent, Body *another, vec2 acceleration){
+	const double G = 6.67428e-11;
+	vec2 distance;
+
+	glm_vec2_sub(another->position, parent->position, distance);
+	double distance_mag = sqrt(distance[0] * distance[0] + distance[1] * distance[1]);
+	
+	double scaler = (another->mass * G) / pow(distance_mag, 3);
+	glm_vec2_scale(distance, scaler, acceleration);
+	
+	WondererLog("body: %lx: (%f, %f)\n", parent, acceleration[0], acceleration[1]);	
+}
+
 static void setupObjects(struct DemoObject *objects, mat4 cam_matrix, uint8_t count){	
 	batch = (struct DrawBatch){
 		.data = (DrawData){
@@ -59,9 +73,11 @@ static void setupObjects(struct DemoObject *objects, mat4 cam_matrix, uint8_t co
 		.object_count = count
 	};
 
+	Force forces[] = {gravitational_force};
 	for(int i = 0; i < count; i++){
 		physcBodyAddToSim(&objects[i].body);
 		glm_vec3_copy(objects[i].color, batch.colors[i]);
+		physcBodySetForces(&objects[i].body, forces, 1);
 	}
 
 	wondererDrawerGenerateLayout(&batch.data, box_vertices, sizeof(box_vertices), 
@@ -106,19 +122,20 @@ int main(){
 
 	struct DemoObject objects[OBJECT_COUNT] = {
 		(struct DemoObject){
-			.body = {20, {10, world_height - 10}, {10, -10}},
+			.body = {1, {WORLD_WIDTH / 2.0f + 200, world_height / 2.0f}, {0, -50.167}},
 			.scale = 5,
 			.color = {0.6, 0.3, 0.4}
 		},
 		(struct DemoObject){
-			.body = {20, {10, 10}, {10, 10}},
-			.scale = 5,
+			.body = {1e16, {WORLD_WIDTH / 2.0f, world_height / 2.0f}, {0, 0}},
+			.scale = 10,
 			.color = {0.3, 0.8, 0.1} 
 		}
 	};
 
 	setupObjects(objects, cam_matrix, OBJECT_COUNT);
 
+		
 	while(!wondererWindowShouldClose()){
 		wondererWindowUpdate();
 		if(dt > 0){
@@ -130,6 +147,7 @@ int main(){
 		dt = lastTime - startTime;
 		startTime = lastTime;
 	}
+
 
 	wondererEngineDestroy();
 	free(batch.matrices);
