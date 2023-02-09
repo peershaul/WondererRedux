@@ -9,10 +9,10 @@
 #include <malloc.h>
 #include <math.h>
 
-#define WINDOW_WIDTH 1080
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 900
+#define WINDOW_HEIGHT 600
 #define WINDOW_NAME "Wonderer | Orbiter"
-#define WORLD_WIDTH 500
+#define WORLD_WIDTH 700
 #define OBJECT_COUNT 2
 
 struct DrawBatch {
@@ -55,15 +55,13 @@ void gravitational_force(float dt, Body *parent, Body *another, vec2 acceleratio
 	
 	double scaler = (another->mass * G) / pow(distance_mag, 3);
 	glm_vec2_scale(distance, scaler, acceleration);
-	
-	WondererLog("body: %lx: (%f, %f)\n", parent, acceleration[0], acceleration[1]);	
 }
 
 static void setupObjects(struct DemoObject *objects, mat4 cam_matrix, uint8_t count){	
 	batch = (struct DrawBatch){
 		.data = (DrawData){
 			.shader = wondererShaderGet("demos/orbiter/object.vert", 
-									"demos/orbiter/object.frag"),
+									    "demos/orbiter/object.frag"),
 			.number_of_indices = 6,
 			.texture_start_slot = 0,
 			.data_type_of_indices = GL_UNSIGNED_BYTE,
@@ -120,14 +118,18 @@ int main(){
 	float startTime = glfwGetTime();
 	float lastTime, dt = -1;
 
+	const float altitude = 200;
+	const float parent_mass = 1e16;
+	const float orbital_velocity = sqrt(6.67e-11 * parent_mass / altitude); 
+
 	struct DemoObject objects[OBJECT_COUNT] = {
 		(struct DemoObject){
-			.body = {1, {WORLD_WIDTH / 2.0f + 200, world_height / 2.0f}, {0, -50.167}},
+			.body = {1, {WORLD_WIDTH / 2.0f + altitude, world_height / 2.0f}, {0, -orbital_velocity}},
 			.scale = 5,
 			.color = {0.6, 0.3, 0.4}
 		},
 		(struct DemoObject){
-			.body = {1e16, {WORLD_WIDTH / 2.0f, world_height / 2.0f}, {0, 0}},
+			.body = {parent_mass, {WORLD_WIDTH / 2.0f, world_height / 2.0f}, {0, 0}},
 			.scale = 10,
 			.color = {0.3, 0.8, 0.1} 
 		}
@@ -141,6 +143,10 @@ int main(){
 		if(dt > 0){
 			physcBodiesSimStep(dt);	
 			updateBatch(&batch, objects);		
+			vec2 distance;
+			glm_vec2_sub(objects[0].body.position, objects[1].body.position, distance);
+			float mag = sqrt(distance[0] * distance[0] + distance[1] * distance[1]);
+			WondererLog("Distance: (%f, %f)\nMagnitude: %f", distance[0], distance[1], mag); 
 			wondererDrawerDrawByDataInstanced(&batch.data, batch.object_count);
 		}
 		lastTime = glfwGetTime();
