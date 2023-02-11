@@ -2,12 +2,9 @@
 
 #include "../../physc/include/body.h"
 
-#include "orbiter.h"
-
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <cglm/affine-pre.h>
 #include <malloc.h>
 #include <math.h>
@@ -15,7 +12,8 @@
 #define WINDOW_WIDTH 900
 #define WINDOW_HEIGHT 600
 #define WINDOW_NAME "Wonderer | Orbiter"
-#define OBJECT_COUNT 3
+#define WORLD_WIDTH 2000
+#define OBJECT_COUNT 2
 
 struct DrawBatch {
 	DrawData data;
@@ -47,12 +45,6 @@ static uint8_t box_layout_sections[] = {2};
 
 static Camera2D camera = {};
 static struct DrawBatch batch = {};
-static bool show_window = true;
-
-static void glfw_key_callback(int key, int scancode, int action, int mods){
-	if(key == GLFW_KEY_I && action == GLFW_PRESS)
-		show_window = !show_window;
-} 
 
 void gravitational_force(float dt, Body *parent, Body *another, vec2 acceleration){
 	const double G = 6.67428e-11;
@@ -111,23 +103,14 @@ static void updateBatch(struct DrawBatch *batch, struct DemoObject *object){
 	}
 }
 
-static float calc_world_width(float world_height){
-	float world_width = (float) WINDOW_WIDTH / WINDOW_HEIGHT * world_height;
-	wondererCamera2DUpdateProjection(&camera, world_width, world_height);
-	return world_width;
-}
-
 int main(){
 	if(!wondererWindowInit(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, WONDERER_WINDOW_FLOATING_FLAG))
 		return -1;
-	
-	float world_height = 500;
-	float world_width = calc_world_width(world_height); 
-	float prev_world_height = world_height;
-	vec2 prev_COM = {};
+
+	float world_height = (float) WINDOW_HEIGHT / WINDOW_WIDTH * WORLD_WIDTH;
 
 	wondererEngineInit();
-	wondererWindowAddCallback(WONDERER_WINDOW_KEY_CALLBACK, glfw_key_callback);
+	wondererCamera2DUpdateProjection(&camera, WORLD_WIDTH, world_height);
 
 	mat4 cam_matrix;
 	wondererCamera2DGetMatrix(&camera, cam_matrix);
@@ -136,7 +119,7 @@ int main(){
 	float lastTime, dt = -1;
 
 	const float altitude = 200;
-	const float parent_mass = 1e17;
+	const float parent_mass = 1e16;
 	const float orbital_velocity = sqrt(6.67e-11 * parent_mass / altitude); 
 
 	struct DemoObject objects[OBJECT_COUNT] = {
@@ -149,11 +132,6 @@ int main(){
 			.body = {parent_mass, {0, 0}, {0, 0}},
 			.scale = 10,
 			.color = {0.3, 0.8, 0.1} 
-		}, 
-		(struct DemoObject){
-			.body = {1e16, {-altitude, 0}, {0, orbital_velocity / 3.0f}},
-			.scale = 5,
-			.color = {0.8431, 0.6, 0.129}  
 		}
 	};
 
@@ -162,52 +140,27 @@ int main(){
 		
 	while(!wondererWindowShouldClose()){
 		wondererWindowUpdate();
-		wondererImguiNewFrame();
-	
-		if(world_height != prev_world_height){
-			world_width = calc_world_width(world_height);
-			prev_world_height = world_height;
-		}
-
-		vec2 COM, COM_velocity, cam_position, body_positions[2];
-
 		if(dt > 0){
 			physcBodiesSimStep(dt);	
 			updateBatch(&batch, objects);		
-	
-			glm_vec2_copy((vec2){0, 0}, COM);
-			float total_mass = 0;
 
-			for(int i = 0; i < OBJECT_COUNT; i++){
-				Body *cb = &objects[i].body;
-				vec2 slot;
-				total_mass += cb->mass;
+			for(int i = 0; i < 2; i++)
+				printf("\tBody %d: (%f, %f)\n", i, objects[i].body.position[0], objects[i].body.position[1]);
 
-				glm_vec2_scale(cb->position, cb->mass, slot);
-				glm_vec2_add(COM, slot, COM);
-			}
-			glm_vec2_scale(COM, 1.0f / total_mass, COM);
+			vec2 COM;
+			glm_vec2_add(objects[0].body.position, objects[1].body.position, COM);
+			glm_vec2_scale(COM, 0.5, COM);
 
-			glm_vec2_copy((vec2) {COM[0] - (world_width * 0.5f), 
-					              COM[1] - (world_height * 0.5f)}, cam_position);
-
-			glm_vec2_sub(COM, prev_COM, COM_velocity);
-
-			for(int i = 0; i < OBJECT_COUNT; i++)
-				glm_vec2_copy(objects[i].body.position, body_positions[i]);
+			vec2 cam_position = {COM[0] + (WORLD_WIDTH * 0.5f),
+								 COM[1] - (world_height * 0.5f)};
+			WondererLog("COM: (%f, %f)\ncamera position: (%f, %f)", COM[0], COM[1], cam_position[0], cam_position[1]);
 
 			glm_vec2_copy(cam_position, camera.position);
 			wondererCamera2DGetMatrix(&camera, cam_matrix);
 			
+
 			wondererDrawerDrawByDataInstanced(&batch.data, batch.object_count);
 		}
-
-		Inspector(dt, &show_window, &world_height, COM, COM_velocity, 
-			      cam_position, body_positions, OBJECT_COUNT);
-		wondererImguiDraw();
-		
-		glm_vec2_copy(COM, prev_COM);
-
 		lastTime = glfwGetTime();
 		dt = lastTime - startTime;
 		startTime = lastTime;
