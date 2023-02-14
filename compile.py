@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 5,
+    'selected_demo' : 6,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -35,7 +35,8 @@ Settings = {
         ('basic', 'demos/basic'),
         ('text', 'demos/text_rendering'),
         ('btext', 'demos/builtin_text/'),
-        ('orbiter', 'demos/orbiter/')
+        ('orbiter', 'demos/orbiter/'),
+        ('world', 'demos/world')
     ],
 
     # filetypes to look for

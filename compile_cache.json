@@ -1,5 +1,5 @@
 {
-  "demo": "orbiter",
+  "demo": "world",
   "files": [
     [
       "./wonderer/src/engine.c",
@@ -22,6 +22,10 @@
       1675616076.674824
     ],
     [
+      "./wonderer/src/window.c",
+      1676141402.0114284
+    ],
+    [
       "./wonderer/src/drawer.c",
       1675616076.674824
     ],
@@ -32,6 +36,10 @@
     [
       "./wonderer/src/imgui_cmpl.cpp",
       1675616076.674824
+    ],
+    [
+      "./wonderer/src/camera2D.c",
+      1675940469.2144547
     ],
     [
       "./wonderer/src/logger.c",
@@ -82,24 +90,12 @@
       1675616076.674824
     ],
     [
-      "./wonderer/src/window.c",
-      1675884901.726745
-    ],
-    [
       "./physc/src/body.c",
       1675937384.8994544
     ],
     [
-      "./wonderer/src/camera2D.c",
-      1675940469.2144547
-    ],
-    [
-      "./demos/orbiter/inspector.cpp",
-      1676113388.61431
-    ],
-    [
-      "./demos/orbiter/main.c",
-      1676140343.34804
+      "./demos/world/main.c",
+      1676330585.0310206
     ]
   ]
 }

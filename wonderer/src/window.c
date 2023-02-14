@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <cglm/cglm.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -110,6 +111,8 @@ bool wondererWindowInit(uint16_t width, uint16_t height, const char *title,
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_DEPTH_TEST);
+
+  glClearColor(0, 0, 0, 1);  
   
   return true;
 }
@@ -168,4 +171,8 @@ void wondererWindowUpdate() {
   glfwPollEvents();
   glfwSwapBuffers(window->w);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void wondererWindowSetClearColor(vec3 color){
+	glClearColor(color[0], color[1], color[2], 1);
 }

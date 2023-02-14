@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <cglm/cglm.h>
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -26,6 +28,8 @@ bool wondererWindowShouldClose();
 void wondererWindowGetDimentions(uint16_t* dimentions);
 
 void wondererWindowAddCallback(wonderer_window_cb_type type, void* cb);
+
+void wondererWindowSetClearColor(vec3 color);
 
 void wondererWindowUpdate();
 
