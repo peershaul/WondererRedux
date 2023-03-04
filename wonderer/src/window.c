@@ -14,13 +14,13 @@
 struct Window {
   uint16_t width, height;
   GLFWwindow* w;
-  dynamic_arr resize_cb, key_cb, cursor_pos_cb;
+  dynamic_arr resize_cb, key_cb, cursor_pos_cb, mouse_click_cb;
   const char* title;
 };
 
 static struct Window *window = NULL;
 
-void glfw_window_size_callback(GLFWwindow *w, int width, int height) {
+static void glfw_window_size_callback(GLFWwindow *w, int width, int height) {
   window->height = height;
   window->width = width;
   glViewport(0, 0, width, height);
@@ -30,7 +30,7 @@ void glfw_window_size_callback(GLFWwindow *w, int width, int height) {
     (*arr[i])(width, height);
 }
 
-void glfw_key_callback(GLFWwindow *w, int key, int scancode, int action,
+static void glfw_key_callback(GLFWwindow *w, int key, int scancode, int action,
                        int mods) {
   void(**arr)(int, int, int, int) = (void (**)(int, int, int, int)) window->key_cb.arr;
 
@@ -38,11 +38,18 @@ void glfw_key_callback(GLFWwindow *w, int key, int scancode, int action,
     (*arr[i])(key, scancode, action, mods);
 }
 
-void glfw_cursor_pos_callback(GLFWwindow *w, double xpos, double ypos) {
+static void glfw_cursor_pos_callback(GLFWwindow *w, double xpos, double ypos) {
   void(**arr)(double, double) = (void(**)(double, double)) window->cursor_pos_cb.arr;
 
   for(uint16_t i = 0; i < window->cursor_pos_cb.last; i++)
     (*arr[i])(xpos, ypos);
+}
+
+static void glfw_mouse_click_callback(GLFWwindow *w, int button, int action, int mods){
+	void(**arr)(int, int, int) = window->mouse_click_cb.arr;
+
+	for(int i = 0; i < window->mouse_click_cb.last; i++)
+		(*arr[i])(button, action, mods);
 }
 
 bool wondererWindowInit(uint16_t width, uint16_t height, const char *title,
@@ -101,12 +108,14 @@ bool wondererWindowInit(uint16_t width, uint16_t height, const char *title,
   wondererDynamicArrayInitialize(2, sizeof(void(*)(int, int, int, int)), &window->key_cb);
   wondererDynamicArrayInitialize(2, sizeof(void(*)(uint16_t, uint16_t)), &window->resize_cb);
   wondererDynamicArrayInitialize(2, sizeof(void(*)(double, double)), &window->cursor_pos_cb);
+  wondererDynamicArrayInitialize(2, sizeof(void(*)(int, int, int)), & window->mouse_click_cb); 
 
   glfwSwapInterval(1);
 
   glfwSetWindowSizeCallback(window->w, glfw_window_size_callback);
   glfwSetKeyCallback(window->w, glfw_key_callback);
   glfwSetCursorPosCallback(window->w, glfw_cursor_pos_callback);
+  glfwSetMouseButtonCallback(window->w, glfw_mouse_click_callback);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -162,6 +171,15 @@ void wondererWindowAddCallback(wonderer_window_cb_type type, void *cb) {
     void (**arr)(double, double) = (void (**)(double, double)) window->cursor_pos_cb.arr;
     arr[window->cursor_pos_cb.last++] = cb;
     return; }
+
+  case WONDERER_WINDOW_MOUSE_PRESS_CALLBACK: {
+		if(window->mouse_click_cb.last == window->mouse_click_cb.length)
+			wondererDynamicArrayIncreaseSize(2 * window->mouse_click_cb.length, &window->cursor_pos_cb);
+
+		void (**arr)(int, int, int) = window->mouse_click_cb.arr;
+		arr[window->mouse_click_cb.last++] = cb;
+		return;
+   }
 
   default: WondererWarning("Callback type is not defined");
   }
