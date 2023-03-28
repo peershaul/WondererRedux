@@ -1,0 +1,148 @@
+#include "../include/obj_loader.h"
+#include "../include/drawer.h"
+#include "../include/logger.h"
+#include "../include/mem_utils.h"
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <memory.h>
+#include <stdlib.h>
+
+static const char *valid_prefixes[] = {
+	"v",
+	"vn", 
+	"vt"
+};
+
+static int found_in_prefixes(const char *haystack, int buff_index){
+	for(int i = 0; i < sizeof(valid_prefixes) / sizeof(char*); i++){
+		if(strlen(valid_prefixes[i]) != buff_index) continue;
+
+		bool equals = true;
+		for(int j = 0; j < buff_index; j++)
+			if(valid_prefixes[i][j] != haystack[j]){
+				equals = false;
+				break;	
+			}
+		if(equals) return i;
+	}
+
+	return -1;
+} 
+
+void wondererObjLoad(const char *path, DrawData *dest, ObjFormat *format, 
+					 int format_length){
+	
+	FILE *f = fopen(path, "r");
+
+	fseek(f, 0, SEEK_END);
+	uint64_t file_size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	char contents[file_size + 1];
+	for(uint64_t i = 0; i < file_size; i++)
+		contents[i] = fgetc(f);
+	contents[file_size] = '\0';
+	fclose(f);
+
+	// The layout sections (Required by DrawData)	
+	int layout_sections_length = sizeof(valid_prefixes) / sizeof(char*);
+	int layout_sections[sizeof(valid_prefixes) / sizeof(char*)] = {};
+	dynamic_arr vertex_data_by_type[sizeof(valid_prefixes) / sizeof(char*)] = {};
+
+	int vertex_float_size = 0; // In OpenGL it called stride
+	for(int i = 0; i < format_length; i++){
+		vertex_float_size += format[i].dimentions;
+		layout_sections[format[i].type] = format[i].dimentions;
+		wondererDynamicArrayInitialize(8 * 4, sizeof(float), &vertex_data_by_type[i]);
+	}
+
+	// Contains the prefix at the start of each line
+	char prefix[256] = ""; 
+
+	// Contains the size of the prefix variable
+	int prefix_index = 0; 
+
+	// Contains the number of spaces seen in the current line
+	int space_count = 0; 
+
+	// Containes the current data type captured
+	ObjFormatType current_data_type = -1;
+
+	// Determains if we are skipping the current line 
+	bool skip = false; 
+
+	// Containes the Value Buffer for all the different types
+	float value_buffer[4] = {};
+	
+	// Contains where we start to see the faces
+	uint64_t face_start_index = 0, last_new_line = 0;
+
+	// INTERPRATING THE VERTEX DATA
+	for(uint64_t i = 0; i < file_size; i++){
+		char c = contents[i];
+
+		if(c == '\0' || c == '\n'){
+			if(!skip) value_buffer[space_count - 1] = strtof(prefix, NULL);
+			
+			if(current_data_type != -1){
+				dynamic_arr *curr_vertex_data = &vertex_data_by_type[current_data_type];
+
+				if(curr_vertex_data->last + 4 >= curr_vertex_data->length){
+					wondererDynamicArrayIncreaseSize(2 * (curr_vertex_data->last + 4), 
+													 curr_vertex_data);
+				}
+				
+				float *vertex_data_buff = curr_vertex_data->arr;
+				for(int j = 0; j < 4; j++)
+					vertex_data_buff[curr_vertex_data->last + j] = value_buffer[j];
+
+				curr_vertex_data->last += 4;
+			}
+
+			if(face_start_index == 0 && strcmp(prefix, "f") == 0) 
+				face_start_index = last_new_line; 
+
+			last_new_line = i;
+			prefix_index = 0;
+			space_count = 0;
+			skip = false;
+			current_data_type = -1;
+			memset(value_buffer, 0, sizeof(float) * 4);
+		}
+		
+		else if(!skip){
+			if(c == ' '){
+				if(space_count == 0){
+					current_data_type = found_in_prefixes(prefix, prefix_index);
+					
+					prefix[prefix_index] = '\0';
+
+					if(current_data_type == -1) skip = true;
+				}
+				else 
+					value_buffer[space_count - 1] = strtof(prefix, NULL);	
+
+				space_count++;
+				prefix_index = 0;
+			}
+			else prefix[prefix_index++] = c;
+		}
+	}
+
+	for(int i = 0; i < layout_sections_length; i++){
+		printf("Type: %d\n", i);
+		for(int j = 0; j < vertex_data_by_type[i].last; j += 4){
+			float *buff = vertex_data_by_type[i].arr;
+			printf("\t%f, %f, %f, %f\n", buff[j + 0], buff[j + 1], 
+				   buff[j + 2], buff[j + 3]);
+		}
+	}	
+	
+	printf("\n\n%s\n", &contents[face_start_index]);
+
+	// TODO: Reconstuct the mesh with the index data in the file 
+	
+}

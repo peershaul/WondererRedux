@@ -1,5 +1,5 @@
 {
-  "demo": "world",
+  "demo": "obj_loader",
   "files": [
     [
       "./wonderer/src/drawer.c",
@@ -15,7 +15,7 @@
     ],
     [
       "./wonderer/src/mem_utils.c",
-      1676468995.033369
+      1679677754.3202825
     ],
     [
       "./wonderer/src/texture.c",
@@ -24,6 +24,10 @@
     [
       "./wonderer/src/camera3D.c",
       1676468995.033369
+    ],
+    [
+      "./wonderer/src/str_utils.c",
+      1679607418.6338103
     ],
     [
       "./wonderer/src/buffer.c",
@@ -35,10 +39,6 @@
     ],
     [
       "./wonderer/src/layout.c",
-      1676468995.033369
-    ],
-    [
-      "./wonderer/src/shader.c",
       1676468995.033369
     ],
     [
@@ -94,8 +94,16 @@
       1676468995.033369
     ],
     [
-      "./demos/world/main.c",
-      1677929473.4337296
+      "./wonderer/src/obj_loader.cpp",
+      1680038530.8206792
+    ],
+    [
+      "./wonderer/src/shader.c",
+      1680040359.8706856
+    ],
+    [
+      "./demos/obj_loading/main.c",
+      1680040842.7106872
     ]
   ]
 }

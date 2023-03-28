@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 6,
+    'selected_demo' : 8,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -36,7 +36,9 @@ Settings = {
         ('text', 'demos/text_rendering'),
         ('btext', 'demos/builtin_text/'),
         ('orbiter', 'demos/orbiter/'),
-        ('world', 'demos/world')
+        ('world', 'demos/world'),
+        ('tetris', 'demos/tetris'),
+        ('obj_loader', 'demos/obj_loading')
     ],
 
     # filetypes to look for
@@ -49,7 +51,7 @@ Settings = {
     'linker': 'g++',
 
     # cflags required for compilation
-    'cflags' : ['-g'],
+    'cflags' : ['-g'],#, '-fno-stack-protector'],
 
     # libs that needed to be linked
     'libs' : [],
@@ -65,6 +67,7 @@ Settings = {
     'cached_files': [],
 
     'compile_files' : []
+    
 }
 
 curr_cache = {

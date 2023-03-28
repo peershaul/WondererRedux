@@ -1,6 +1,6 @@
 #include "../include/mem_utils.h"
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -20,7 +20,7 @@ bool wondererDynamicArrayIncreaseSize(uint16_t new_length, dynamic_arr *arr) {
     arr->length = new_length;
     return false;
   }
-
+  
   new_ptr = malloc(new_length * arr->elem_size);
 
   memset((arr->arr + arr->length * arr->elem_size), 0,

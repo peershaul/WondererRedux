@@ -69,7 +69,7 @@ static int extract_link(const char* line, char *dest, int line_length){
 }
 
 static void fetch_source(const char* path, dynamic_arr *dest, 
-						 bool is_top_level){
+      						 bool is_top_level){
 
 	FILE *f = fopen(path, "r");
 
