@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 8,
+    'selected_demo' : 9,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -38,7 +38,8 @@ Settings = {
         ('orbiter', 'demos/orbiter/'),
         ('world', 'demos/world'),
         ('tetris', 'demos/tetris'),
-        ('obj_loader', 'demos/obj_loading')
+        ('obj_loader', 'demos/obj_loading'),
+        ('framebuffers', 'demos/framebuffers')
     ],
 
     # filetypes to look for

@@ -10,6 +10,7 @@
 #include "layout.h"
 #include "buffer.h"
 #include "texture.h"
+#include "obj_loader.h"
 
 
 void wondererEngineInit();

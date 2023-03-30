@@ -181,9 +181,6 @@ static void read_obj_file(const char *path, int *vertex_layout,
          int dimentions = format[j].dimentions;
          int attrib_index = all_attrib_indices[i * 3 + type];
 
-         // TODO: vertex_attribs has data only on its first element 
-         //       on WONDERER_OBJ_FORMAT_LOCATION 
-         //       the remaining vectors are null
          for(int h = 0; h < dimentions; h++)
             object_vertices->push_back(vertex_attribs[type][attrib_index * dimentions + h]);
       }

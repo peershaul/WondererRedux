@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
 #define WINDOW_TITLE "Wonderer Multi OBJ Loader"
 
 int main() {
@@ -18,8 +18,8 @@ int main() {
 
    Camera3D camera = {
       .position = {0, 0, 0},
-      .look_at = {0, 1, 0},
-      .up = {0, 0, 1}
+      .look_at = {0, 0, 1},
+      .up = {0, 1, 0}
    };
 
    wondererCamera3DUpdateProjection(&camera, glm_rad(60),
@@ -41,7 +41,7 @@ int main() {
       {WONDERER_OBJ_FORMAT_UV, 2},
    };
 
-   wondererObjLoad("demos/obj_loading/untitled.obj", &data, formats, 2);
+   wondererObjLoad("demos/obj_loading/teapot.obj", &data, formats, 2);
 
    char *names[] = {"cam_matrix", "model"};
    uint16_t lengths[] = {1 , 1};
@@ -54,19 +54,19 @@ int main() {
    float dt = -1, endTime;
  
    float curr_angle = 0;
-   const float rotation_speed = 10; 
+   const float rotation_speed = 20; 
   
    while (!wondererWindowShouldClose()) {
       wondererWindowUpdate();
 
-      glm_mat4_identity(model);
 
       if(dt > 0){
          curr_angle += dt * rotation_speed;
 
-         glm_translate(model, (vec3){0, 50, 0});
-         glm_rotate(model, glm_rad(curr_angle + 180), (vec3){0, 0, 1});
-         glm_rotate(model, glm_rad(curr_angle), (vec3){0, 1, 0});
+         glm_mat4_identity(model);
+
+         glm_translate(model, (vec3){0, 0, 50});
+         glm_rotate(model, glm_rad(curr_angle + 180), (vec3){0, 1, 0});
          glm_scale(model, (vec3){0.2, 0.2, 0.2});
 
          wondererDrawerDrawByData(&data);

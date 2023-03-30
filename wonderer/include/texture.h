@@ -12,6 +12,8 @@ void wondererTextureLoaderInit();
 void wondererTextureLoaderTerminate();
 
 Texture *wondererTextureCreate();
+Texture *wondererTextureCreateWithParameters(GLenum *parameters);
+
 Texture *wondererTextureGet(const char* filepath);
 void wondererTextureBind(uint8_t slot, Texture *tex);
 
@@ -22,5 +24,6 @@ Texture *wondererTextureGetBound(uint8_t slot);
 GLuint wondererTextureGetID(Texture *tex);
 
 void wondererTextureUploadTexImage(Texture *tex, const char* path);
+void wondererTextureSetImageParams(Texture *tex, uint16_t width, uint16_t height, GLenum color_mode);
 
 #endif 
