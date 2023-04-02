@@ -1,0 +1,121 @@
+#define WONDERER_MULTI_COMPUTE_SHADERS_SRC
+
+#include <stdint.h>
+#include <GL/glew.h>
+
+#include "../include/texture.h"
+#include "../include/mem_utils.h"
+
+typedef struct {
+   GLuint id;
+   dynamic_arr binded_variables, binded_types;
+   uint16_t out_width, out_height;
+} ComputeShader;
+
+#include "../include/compute_shader.h"
+#include "internal/shader_funcs.c"
+
+static dynamic_arr shader_pool = {};
+
+static int find_available_space(){
+   ComputeShader *arr = shader_pool.arr;
+   
+   for(int i = 0; i < shader_pool.last; i++)
+      if(arr[i].id == 0)
+         return i;
+
+   return -1;
+}
+
+static ComputeShader create_shader(const char *path, uint16_t output_width, 
+                                   uint16_t output_height){
+   
+   // Generating the shader
+   GLuint shader_id = compile_shader(GL_COMPUTE_SHADER, path);
+   if(shader_id == 0) return (ComputeShader){.id = 0}; 
+   
+   GLuint program = glCreateProgram();
+   glAttachShader(program, shader_id);
+   glLinkProgram(program);
+
+   GLint status_ok;
+   glGetProgramiv(program, GL_LINK_STATUS, &status_ok);
+   if(status_ok != GL_TRUE){
+      GLsizei log_length = 0;
+      GLchar message[1024];
+      glGetProgramInfoLog(program, 1026, &log_length, message);
+
+      printf("COMPUTE SHADER LINK ERROR\nPath: \"%s\"\n%s\n", path, message);
+      exit(0);
+      return (ComputeShader){};
+   }
+
+   glDeleteShader(shader_id);
+  
+   // Generating the output texture
+   Texture *tex = wondererTextureCreate();
+   GLuint tex_id = wondererTextureGetID(tex);
+
+   glTextureStorage2D(tex_id, 1, GL_RGBA32F, output_width, output_height);
+   glBindImageTexture(0, tex_id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+   
+   return (ComputeShader) {program, tex, output_width, output_height};
+}
+
+ComputeShader *wondererComputeShaderCreate(const char *path, uint16_t output_width,
+                                           uint16_t output_height){
+
+   ComputeShader shader = create_shader(path, output_width, output_height);
+   if(shader.id == 0) // Checking for error and returning NULL if there is an error
+      return NULL;
+
+   int found = find_available_space();
+
+   if(found == -1){
+      if(shader_pool.last >= shader_pool.length)
+         wondererDynamicArrayIncreaseSize(2 * shader_pool.last, &shader_pool);
+
+      ComputeShader *arr = shader_pool.arr;
+      arr[shader_pool.last] = shader;
+      return &arr[shader_pool.last++];
+   }
+   else {
+      ComputeShader *arr = shader_pool.arr;
+      arr[found] = shader;
+      return &arr[found];
+   }
+}
+
+void wondererComputeShaderDispatch(ComputeShader *shader, ivec3 groups){
+   glUseProgram(shader->id);
+   glDispatchCompute(ceil((float) shader->out_width / groups[0]),
+                     ceil((float) shader->out_height) / groups[1],
+                     groups[2]);
+   glMemoryBarrier(GL_ALL_BARRIER_BITS);
+   glBindTextureUnit(0, wondererTextureGetID(shader->output));
+}
+
+void wondererComputeShaderLoaderInit(){
+   wondererDynamicArrayInitialize(2, sizeof(ComputeShader), &shader_pool);
+}
+
+void wondererComputeShaderDestroy(ComputeShader *shader){
+   glDeleteProgram(shader->id);
+   shader->id = 0;
+   wondererTextureDestroy(shader->output);
+}
+
+GLuint wondererComputeShaderGetID(ComputeShader *shader) { return shader->id; }
+Texture *wondererComputeShaderGetTexture(ComputeShader *shader) { return shader->output; }
+void wondererComputeShaderGetOutDimentions(ComputeShader *shader, int *dimentions){
+   glm_ivec2_copy((ivec2){shader->out_width, shader->out_height}, dimentions);
+}
+
+void wondererComputeShaderLoaderTerminate(){
+   ComputeShader *arr = shader_pool.arr;
+
+   for(int i = 0; i < shader_pool.last; i++)
+      wondererComputeShaderDestroy(&arr[i]);
+
+   wondererDynamicArrayFree(&shader_pool);
+}

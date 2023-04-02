@@ -198,3 +198,12 @@ void wondererTextureSetImageParams(Texture *tex, uint16_t width, uint16_t height
 
    wondererTextureBind(curr_slot, curr_bound);
 }
+
+void wondererTextureGetDimentions(Texture *tex, ivec2 dimentions){
+   glm_ivec2_copy((ivec2){tex->width, tex->height}, dimentions);
+}
+
+void wondererTextureSetDimentions(Texture *tex, ivec2 dimentions){
+   tex->width = dimentions[0];
+   tex->height = dimentions[1];
+}

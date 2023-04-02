@@ -6,10 +6,12 @@ void wondererEngineInit(){
 	wondererLayoutLoaderInit();
 	wondererShaderLoaderInit();
 	wondererTextureLoaderInit();
+   wondererFrameBufferLoaderInit();
 }
 
 void wondererEngineDestroy(){
 	wondererImguiDestroy();
+   wondererFrameBufferLoaderTerminate();
 	wondererBufferLoaderTerminate();
 	wondererLayoutLoaderTerminate();
 	wondererShaderLoaderTerminate();

@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 9,
+    'selected_demo' : 10,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -39,7 +39,9 @@ Settings = {
         ('world', 'demos/world'),
         ('tetris', 'demos/tetris'),
         ('obj_loader', 'demos/obj_loading'),
-        ('framebuffers', 'demos/framebuffers')
+        ('framebuffers', 'demos/framebuffers'),
+        ('compute_shaders', 'demos/compute_shaders'),    
+        ('map_builder', 'demos/map_builder'),
     ],
 
     # filetypes to look for

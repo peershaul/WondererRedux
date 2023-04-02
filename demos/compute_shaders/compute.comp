@@ -1,0 +1,20 @@
+#version 460
+
+layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D screen; // ohhhhh Now i get it!!
+layout(location = 0) uniform vec3 color;
+
+void main(){
+   ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+
+   ivec2 dims = imageSize(screen);
+   float x = -(float(pixel_coords.x * 2 - dims.x) / dims.x); // Transform to [-1.0, 1.0]
+   float y = -(float(pixel_coords.y * 2 - dims.y) / dims.y); // Transform to [-1.0, 1.0]
+
+   vec2 normalized_coords = (vec2(x, y) + vec2(1, 1)) / 2.0f;
+   vec4 pixel = vec4(color, 1) * vec4(normalized_coords.x, normalized_coords.x, normalized_coords.x, 1); 
+
+   imageStore(screen, pixel_coords, pixel);
+}
+
+

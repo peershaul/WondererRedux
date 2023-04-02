@@ -1,5 +1,5 @@
 {
-  "demo": "framebuffers",
+  "demo": "compute_shaders",
   "files": [
     [
       "./wonderer/src/drawer.c",
@@ -15,19 +15,23 @@
     ],
     [
       "./wonderer/src/engine.c",
-      1676468995.033369
+      1680276008.786058
     ],
     [
       "./wonderer/src/framebuffer.c",
       1680213486.8326588
     ],
     [
+      "./wonderer/src/compute_shader.c",
+      1680437116.7164118
+    ],
+    [
       "./wonderer/src/mem_utils.c",
-      1679677754.3202825
+      1680276324.0028965
     ],
     [
       "./wonderer/src/texture.c",
-      1680211352.0244303
+      1680346929.7541146
     ],
     [
       "./wonderer/src/camera3D.c",
@@ -51,7 +55,7 @@
     ],
     [
       "./wonderer/src/shader.c",
-      1680040359.8706856
+      1680353681.3946974
     ],
     [
       "./wonderer/src/text_drawer.c",
@@ -106,8 +110,8 @@
       1676468995.033369
     ],
     [
-      "./demos/framebuffers/main.c",
-      1680214009.4447224
+      "./demos/compute_shaders/main.c",
+      1680444227.0146067
     ]
   ]
 }

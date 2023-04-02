@@ -36,5 +36,4 @@ bool wondererDynamicArrayIncreaseSize(uint16_t new_length, dynamic_arr *arr) {
 
 void wondererDynamicArrayFree(dynamic_arr *arr){
   free(arr->arr);
-  free(arr);
 }

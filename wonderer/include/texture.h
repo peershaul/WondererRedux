@@ -7,6 +7,7 @@ typedef void Texture;
 
 #include <stdint.h>
 #include <GL/glew.h>
+#include <cglm/cglm.h>
 
 void wondererTextureLoaderInit();
 void wondererTextureLoaderTerminate();
@@ -22,6 +23,8 @@ void wondererTextureDestroy(Texture *tex);
 Texture *wondererTextureGetBound(uint8_t slot);
 
 GLuint wondererTextureGetID(Texture *tex);
+void wondererTextureGetDimentions(Texture *tex, ivec2 dimentions);
+void wondererTextureSetDimentions(Texture *tex, ivec2 dimentions);
 
 void wondererTextureUploadTexImage(Texture *tex, const char* path);
 void wondererTextureSetImageParams(Texture *tex, uint16_t width, uint16_t height, GLenum color_mode);

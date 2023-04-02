@@ -5,7 +5,6 @@
 
 #include <GLFW/glfw3.h>
 #include <cglm/cglm.h>
-#include <GL/glew.h> // We will try to hand code the framebuffer stuff first 
 
 #define WINDOW_WIDTH 2560
 #define WINDOW_HEIGHT 1080
@@ -73,40 +72,6 @@ int main() {
    float curr_angle = 0;
    const float rotation_speed = 20; 
    
-
-   // FRAMEBUFFER STUFF
-/* 
-   GLuint fbo;
-   glGenFramebuffers(1, &fbo);
-   glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-   GLuint framebuffer_tex;
-   glGenTextures(1, &framebuffer_tex);
-   
-   // Just binding the texture like normal
-   glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, framebuffer_tex);
-
-   // Setting the image buffer to NULL because we will bind it to the framebuffer
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer_tex, 0);
-
-   GLuint rbo;
-   glGenRenderbuffers(1, &rbo);
-   glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
-   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-   GLuint fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-   if(fboStatus != GL_FRAMEBUFFER_COMPLETE)
-      WondererError("Frame buffer error: %X (%d)", fboStatus, fboStatus);
-
-*/
-
    FrameBuffer *fb = wondererFrameBufferCreate(WINDOW_WIDTH, WINDOW_HEIGHT);
    wondererFrameBufferSetClearColor(fb, (vec3){1, 0, 0});
   

@@ -11,6 +11,8 @@
 #include "buffer.h"
 #include "texture.h"
 #include "obj_loader.h"
+#include "camera3D.h"
+#include "framebuffer.h"
 
 
 void wondererEngineInit();
