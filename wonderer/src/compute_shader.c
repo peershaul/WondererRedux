@@ -87,6 +87,11 @@ static void bind_data_tex2D(Texture *tex, int binding){
    glBindTextureUnit(0, wondererTextureGetID(tex));
 }
 
+static void bind_data_buffer(Buffer *buff, int binding){
+   wondererBufferBind(buff);
+   WondererGLWrap(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, wondererTextureGetID(buff)));
+}
+
 static void upload_to_shader_by_type(int uniform, DrawDataType type, uint16_t length,
                                      void *data) {
    switch(type){
@@ -191,6 +196,7 @@ void wondererComputeShaderSetBindings(ComputeShader *shader, ComputeBindType *ty
             initialize_bounded_tex2D((Texture*) ptrs[i], dimentions[i]);
             break;
          } 
+         case WONDERER_COMPUTE_BIND_BUFFER: break;
          default: 
             WondererError("Initialization of the object at the index %d is not implemented yet", i);
          break;
@@ -206,15 +212,7 @@ void wondererComputeShaderDispatch(ComputeShader *shader, ivec3 num_groups){
    DrawDataType *uniform_types = shader->uniforms.types.arr;
    uint16_t *uniform_lengths = shader->uniforms.lengths.arr;
    void **uniform_ptrs = shader->uniforms.ptrs.arr;
-   
-   for(int i = 0; i < shader->uniforms.types.last; i++){
-      WondererGLWrap(upload_to_shader_by_type(i, uniform_types[i], 
-                                              uniform_lengths[i], uniform_ptrs[i]));
-   }
-
-   WondererGLWrap(glDispatchCompute(num_groups[0], num_groups[1], num_groups[2]));
-   WondererGLWrap(glMemoryBarrier(GL_ALL_BARRIER_BITS));
-
+ 
    void **binding_data = shader->bindings.ptrs.arr;
    ComputeBindType *binding_types = shader->bindings.types.arr;
    
@@ -223,11 +221,22 @@ void wondererComputeShaderDispatch(ComputeShader *shader, ivec3 num_groups){
          case WONDERER_COMPUTE_BIND_TEX2D:
             bind_data_tex2D((Texture*) binding_data[i], i);    
          break;
+         case WONDERER_COMPUTE_BIND_BUFFER:
+            bind_data_buffer((Buffer*) binding_data[i], i);
+         break;
          default: 
             WondererError("An option to bind the item in index %d is not implemented", i);
          break;
       }
    }
+
+   for(int i = 0; i < shader->uniforms.types.last; i++){
+      WondererGLWrap(upload_to_shader_by_type(i, uniform_types[i], 
+                                              uniform_lengths[i], uniform_ptrs[i]));
+   }
+
+   WondererGLWrap(glDispatchCompute(num_groups[0], num_groups[1], num_groups[2]));
+   WondererGLWrap(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 
    wondererShaderBind(curr_bound);
 }

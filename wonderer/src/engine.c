@@ -7,9 +7,11 @@ void wondererEngineInit(){
 	wondererShaderLoaderInit();
 	wondererTextureLoaderInit();
    wondererFrameBufferLoaderInit();
+   wondererComputeShaderLoaderInit();
 }
 
 void wondererEngineDestroy(){
+   wondererComputeShaderLoaderTerminate();
 	wondererImguiDestroy();
    wondererFrameBufferLoaderTerminate();
 	wondererBufferLoaderTerminate();

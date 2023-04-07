@@ -1,9 +1,9 @@
 {
-  "demo": "compute_shaders",
+  "demo": "basic",
   "files": [
     [
       "./wonderer/src/drawer.c",
-      1680173467.8341374
+      1680875976.3063066
     ],
     [
       "./wonderer/src/obj_loader.cpp",
@@ -15,7 +15,7 @@
     ],
     [
       "./wonderer/src/engine.c",
-      1680276008.786058
+      1680877002.8757942
     ],
     [
       "./wonderer/src/framebuffer.c",
@@ -23,7 +23,7 @@
     ],
     [
       "./wonderer/src/compute_shader.c",
-      1680437116.7164118
+      1680879613.6006112
     ],
     [
       "./wonderer/src/mem_utils.c",
@@ -43,7 +43,7 @@
     ],
     [
       "./wonderer/src/buffer.c",
-      1676468995.033369
+      1680879276.1318088
     ],
     [
       "./wonderer/src/logger.c",
@@ -110,8 +110,12 @@
       1676468995.033369
     ],
     [
-      "./demos/compute_shaders/main.c",
-      1680444227.0146067
+      "./demos/basic/basic.c",
+      1676468995.0200357
+    ],
+    [
+      "./demos/basic/imgui_basic.cpp",
+      1676468995.0200357
     ]
   ]
 }

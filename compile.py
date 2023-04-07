@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 10,
+    'selected_demo' : 12,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -41,7 +41,8 @@ Settings = {
         ('obj_loader', 'demos/obj_loading'),
         ('framebuffers', 'demos/framebuffers'),
         ('compute_shaders', 'demos/compute_shaders'),    
-        ('map_builder', 'demos/map_builder'),
+        ('SSBOs', 'demos/SSBOs'),
+        ('perlin_noise', 'demos/perlin_noise')
     ],
 
     # filetypes to look for

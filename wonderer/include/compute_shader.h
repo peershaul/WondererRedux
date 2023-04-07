@@ -12,7 +12,8 @@ typedef void ComputeShader;
 #endif
 
 typedef enum {
-   WONDERER_COMPUTE_BIND_TEX2D
+   WONDERER_COMPUTE_BIND_TEX2D,
+   WONDERER_COMPUTE_BIND_BUFFER
 } ComputeBindType;
 
 ComputeShader *wondererComputeShaderCreate(const char *path);

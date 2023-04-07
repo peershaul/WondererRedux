@@ -13,6 +13,7 @@
 #include "obj_loader.h"
 #include "camera3D.h"
 #include "framebuffer.h"
+#include "compute_shader.h"
 
 
 void wondererEngineInit();

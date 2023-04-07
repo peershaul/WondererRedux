@@ -17,6 +17,7 @@ Buffer *wondererBufferCreate(GLenum type, uint16_t initial_size,
 void wondererBufferDestroy(Buffer *buffer);
 
 void wondererBufferFill(Buffer *buffer, void* data, uint16_t data_size);  
+void wondererBufferGetData(Buffer *buffer, void *data, uint16_t data_size);
 
 void wondererBufferBind(Buffer* buff);
 GLuint wondererBufferGetID(Buffer *buff);
