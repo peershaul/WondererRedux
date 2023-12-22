@@ -5,6 +5,8 @@ in vec2 tex_coords;
 out vec4 fragColor;
 
 uniform sampler2D frame;
+uniform int paint;
+uniform vec3 threshes;
 
 void main(){
    float lum = texture(frame, tex_coords).x;
@@ -13,11 +15,10 @@ void main(){
    vec3 green = vec3(0.5, 0.8, 0.3);
    vec3 grey = vec3(0.9, 0.9, 0.9);
 
-   float high_thresh = 0.7;
-   float mid_thresh = 0.5;
-   float low_thresh = 0.35;
+   float high_thresh = threshes.z;
+   float mid_thresh = threshes.y;
+   float low_thresh = threshes.x;
 
-   vec3 color;
 
    // if(lum <= low_thresh)
    //    color = blue;
@@ -26,15 +27,20 @@ void main(){
    // else 
    //    color = mix(green, grey, (lum - high_thresh) / (1 - high_thresh));
    // 
-   //
-   if (lum <= low_thresh)
-      color = blue;
-   else if (lum <= mid_thresh)
-      color = yellow;
-   else if(lum <= high_thresh)
-      color = green;
-   else 
-      color = grey;
+   if(paint == 0){
+      vec3 color;
+
+      if (lum <= low_thresh)
+         color = blue;
+      else if (lum <= mid_thresh)
+         color = yellow;
+      else if(lum <= high_thresh)
+         color = green;
+      else 
+         color = grey;
+
+      fragColor = vec4(color, 1);
+   }
+   else fragColor = vec4(0, lum >= 0.5? lum : 0, lum < 0.5? lum + 0.5 : 0, 1);
     
-   fragColor = vec4(color, 1);
 }

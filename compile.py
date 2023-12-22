@@ -18,7 +18,7 @@ Settings = {
     'working_dir' : '.',
 
     # the current selected demo
-    'selected_demo' : 12,
+    'selected_demo' : 13,
 
     # folders that we are looking at for files to compile
     'folders' : [
@@ -42,7 +42,8 @@ Settings = {
         ('framebuffers', 'demos/framebuffers'),
         ('compute_shaders', 'demos/compute_shaders'),    
         ('SSBOs', 'demos/SSBOs'),
-        ('perlin_noise', 'demos/perlin_noise')
+        ('perlin_noise', 'demos/perlin_noise'),
+        ('atomas', 'demos/atomas')
     ],
 
     # filetypes to look for

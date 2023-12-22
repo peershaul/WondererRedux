@@ -38,6 +38,7 @@ void Inspector(float dt, bool *show_window, bool *paint,
 
       ImGui::Text("FPS: %f", 1 / dt);
       ImGui::End();
+
    }
 }
 

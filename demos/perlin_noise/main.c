@@ -24,6 +24,10 @@ static uint8_t box_indices[] = {
 
 static uint8_t box_layout_sections[] = {2};
 
+static int paint = 0;
+static vec3 threshes = {0.45, 0.55, 0.8};
+static bool show_window = true;
+
 void initialize_frame(DrawData *frame, uint16_t *tex){
    *frame = (DrawData){
       .shader = wondererShaderGet("demos/perlin_noise/frame.vert",
@@ -39,10 +43,11 @@ void initialize_frame(DrawData *frame, uint16_t *tex){
    
    int texture_slot = 0;
 
-   char *frame_uniform_names[] = {"frame"};
-   DrawDataType frame_types[] = {WONDERER_DRAW_DATA_TEXTURE};
-   uint16_t frame_lengths[] = {1};
-   void *frame_data_ptrs[] = {NULL};
+   char *frame_uniform_names[] = {"frame", "paint", "threshes"};
+   DrawDataType frame_types[] = {WONDERER_DRAW_DATA_TEXTURE, WONDERER_DRAW_DATA_INT, 
+                                 WONDERER_DRAW_DATA_VEC3};
+   uint16_t frame_lengths[] = {1, 1, 1};
+   void *frame_data_ptrs[] = {NULL, &paint, &threshes};
 
    Texture *frame_texture = wondererTextureCreate(); 
 
@@ -55,7 +60,7 @@ void initialize_frame(DrawData *frame, uint16_t *tex){
    wondererTextureBind(texture_slot, bound);
 
    wondererDrawerSetUniforms(frame, frame_uniform_names, frame_types, 
-                             frame_lengths, frame_data_ptrs, 1);
+                             frame_lengths, frame_data_ptrs, 3);
    wondererDrawerUploadTextures(frame, &frame_texture, 1);
 }
 
@@ -71,7 +76,7 @@ int main(){
    float perlin_noise_values[WINDOW_WIDTH * WINDOW_HEIGHT];
   
    generate_perlin_noise(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 
-                         0.005, rand(), 4, perlin_noise_values);
+                         0.01, rand(), 4, perlin_noise_values);
 
    uint16_t perlin_noise_tex[WINDOW_WIDTH * WINDOW_HEIGHT];
 
@@ -82,10 +87,28 @@ int main(){
    DrawData frame_data;
    initialize_frame(&frame_data, perlin_noise_tex);
 
+   float startTime = glfwGetTime();
+   float dt = -1, endTime;
+
    while(!wondererWindowShouldClose()){
       wondererWindowUpdate();
+      wondererImguiNewFrame();
 
-      wondererDrawerDrawByData(&frame_data);
+      bool bpaint = paint == 0;
+      
+      if(dt != -1){
+         Inspector(dt, &show_window, &bpaint, threshes);
+         paint = bpaint? 0 : 1;
+         wondererDrawerDrawByData(&frame_data);
+      }
+
+
+
+      wondererImguiDraw();
+
+      endTime = glfwGetTime();
+      dt = endTime - startTime;
+      startTime = endTime;
    }
 
    wondererEngineDestroy();
