@@ -44,7 +44,7 @@ void initialize_circles(DrawData *circles_data, mat4 cam_matrix, mat4 *models,
     printf("\n");
 
     // initializing values for the placement of the circles 
-    float angle_increment = 2 * PI / circle_count;
+    float angle_increment = 2 * PI / (circle_count - 1);
 
     int half_width = INI_WIDTH / 2;
     int half_height = INI_HEIGHT / 2;
@@ -57,9 +57,14 @@ void initialize_circles(DrawData *circles_data, mat4 cam_matrix, mat4 *models,
         mat4 model;
         glm_mat4_identity(model);
 
-        vec3 position =  {round(half_width  + displacement_radius * sin(angle_increment * i)),
-                          round(half_height + displacement_radius * cos(angle_increment * i)),
-                          1};
+        vec3 position;
+        if(i != circle_count - 1)
+            glm_vec3_copy((vec3){round(half_width  + displacement_radius * sin(angle_increment * i)),
+                                 round(half_height + displacement_radius * cos(angle_increment * i)),
+                                 1}, position);
+        else 
+            glm_vec3_copy((vec3){half_width, half_height, 1}, position);
+
         vec3 scale = {circle_radius, circle_radius, 1}; 
 
         glm_translate(model, position);
