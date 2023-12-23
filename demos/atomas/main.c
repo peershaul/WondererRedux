@@ -10,25 +10,33 @@
 
 #include "main.h"
 
-#define INI_WIDTH 1280
-#define INI_HEIGHT 720
-#define INI_TITLE "Wonderer | Atomas"
+static int circles_count = 20;
+static int circle_values[25] = {};
 
-#define PI 3.14159f
+void mouse_click_cb(int button, int action, int mods){
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+        vec2 mouse_position;
+        wondererWindowGetMousePos(mouse_position);
 
-static float box_vertices[] = {
-	-1, -1, 
-	-1,  1, 
-	 1,  1, 
-	 1, -1
-};
+        vec2 screen_center = {INI_WIDTH / 2.0f, INI_HEIGHT / 2.0f};
+        vec2 place_vector;
 
-static uint8_t box_indices[] = {
-	1, 0, 2, 
-	0, 3, 2
-}; 
+        glm_vec2_sub(mouse_position, screen_center, place_vector);
 
-static uint8_t box_layout_sections[] = {2};
+        float dist = sqrt(place_vector[0] * place_vector[0] + place_vector[1] * place_vector[1]); 
+        float angle = asin(place_vector[0] / dist);
+        if(place_vector[1] > 0)
+            angle = PI - angle;
+        else if(place_vector[1] < 0 && place_vector[0] < 0)
+            angle = 2 * PI + angle;
+
+        int index = angle * (circles_count - 1) / (2 * PI);
+
+        if(dist >= 150)
+            printf("(%4.0f, %4.0f)\tangle: %03.1f\tindex: %2d\n", place_vector[0], place_vector[1], 
+                                                                glm_deg(angle), index);
+    }
+}
 
 int main(){
 
@@ -40,9 +48,7 @@ int main(){
 
     wondererEngineInit();
 
-    // number of circles usecird
-    int circles_count = 20;
-    int circle_values[25] = {};
+    wondererWindowAddCallback(WONDERER_WINDOW_MOUSE_PRESS_CALLBACK, mouse_click_cb);
 
     Camera2D camera = {};
     wondererCamera2DUpdateProjection(&camera, INI_WIDTH, INI_HEIGHT);
@@ -57,6 +63,10 @@ int main(){
     while(!wondererWindowShouldClose()){
         wondererWindowUpdate();
         wondererDrawerDrawByDataInstanced(&circles, circles_count);
+
+        // ivec2 position = {};
+        // wondererWindowGetMousePos(position);
+        // printf("Mouse Position: (%4d, %4d)\n", position[0], position[1]);
     }
 
     wondererEngineDestroy();

@@ -15,6 +15,7 @@ struct Window {
    uint16_t width, height;
    GLFWwindow* w;
    dynamic_arr resize_cb, key_cb, cursor_pos_cb, mouse_click_cb;
+   vec2 cursor_pos;
    const char* title;
 };
 
@@ -43,6 +44,8 @@ static void glfw_cursor_pos_callback(GLFWwindow *w, double xpos, double ypos) {
 
    for(uint16_t i = 0; i < window->cursor_pos_cb.last; i++)
       (*arr[i])(xpos, ypos);
+
+   glm_vec2_copy((vec2){xpos, ypos}, window->cursor_pos);
 }
 
 static void glfw_mouse_click_callback(GLFWwindow *w, int button, int action, int mods){
@@ -195,4 +198,8 @@ void wondererWindowUpdate() {
 
 void wondererWindowSetClearColor(vec3 color){
    glClearColor(color[0], color[1], color[2], 1);
+}
+
+void wondererWindowGetMousePos(vec2 position){
+   glm_vec2_copy(window->cursor_pos, position);
 }

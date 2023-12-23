@@ -27,6 +27,7 @@ void wondererDestroyWindow();
 GLFWwindow *wondererGetGLFWwindow();
 bool wondererWindowShouldClose();
 void wondererWindowGetDimentions(uint16_t* dimentions);
+void wondererWindowGetMousePos(vec2 position);
 
 void wondererWindowAddCallback(wonderer_window_cb_type type, void* cb);
 
