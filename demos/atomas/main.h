@@ -10,8 +10,14 @@
 #define PI 3.14159f
 
 #define CIRCLE_MAX_COUNT 25
+#define CIRCLE_DISPLACEMENT_RADIUS 300
+#define CIRCLE_RADIUS 50
 
 void initialize_circles(DrawData *circles_data, mat4 cam_matrix, mat4 *models, 
                         int *circle_values, int circle_count);
+
+void update_circles(DrawData *circles_data, mat4 *models, int *circle_values, int circle_count);
+
+void update_circles_lengths(DrawData *data, int circle_count);
 
 #endif
